@@ -1,1 +1,83 @@
-asdas
+COMP SCI 7076 - Distributed Systems - Collaborative session 2: Answers:
+Question 1:
+Low latency is not a problem for the server with a small number of client.
+However, if we need a large number of users to visit, but also quickly return to the calculation results, which will be more difficult.
+Because in addition to a large number of user access may cause the request in the queue, there may be because the length of the queue is too long, resulting in memory depletion, bandwidth filled with space and other issues. If the retry strategy is taken because of queuing failure, the entire delay will become higher.
+So the distributed system will use a lot of requests sorting and distribution practices, as soon as possible so that more users come out of the user's request.
+However, due to a large number of distributed systems, it is necessary to pass the user's request after a number of distribution.
+The entire delay may be higher due to the operation of these distributions and transfers. So distributed systems, in addition to distributing requests, try to find ways to reduce the number of levels of distribution so that requests can be processed as quickly as possible.
+Question 2:
+1st is Prefetching:
+Prefetching is either software-controlled or hardware-controlled. In software-controlled prefetching explicit "prefetch" instructions are issued for data that is "known" to be remote.
+Hardware-controlled prefetching is done through the use of long cache lines to capitalize on spatial locality or through the use of instruction lookahead.
+Long cache lines introduce the problem of "false sharing", whereas instruction lookahead is limited by branches and/or branch-prediction accuracy (on the average there is a branch every 4 instructions).
+When prefetching is used, issues of coherence must be addressed.
+For example, what should be done if a block is updated after it has been prefetched, but before it has been used?
+Generally speaking one of two policies are adopted.
+Using the "binding prefetch" policy, the fetch is assumed to have happened when the prefetch instruction is issued (in other words, it is the responsibility of the "fetching process" to ensure that no other processor will update the prefetched value before it is actually used -- this may require the use of locks, if necessary).
+    
+Using the "non-binding prefetch" policy, the system cache coherence protocol will make sure to invalidate a prefetched value if it is updated prior to its use.
+It has been observed that prefetching on the Dash processor may cut latency by almost one half.
+Question 3:
+load_CFILE() {
+        /* MUST use DHCP */
+        curl = dhcp_query(/*WPAD option */);
+        if (curl != null) {  /* DHCP succeeded */
+           if isvalid (read_CFILE(curl))
+              return SUCCESS;  /* valid CFILE */
+}
+        /* Should use SLP */
+        slp_list = slp_query(/*(WPAD attributes */);
+        while (slp_list != null) {  /* test each curl  */
+           if isvalid(read_CFILE(slp_list.curl_data))
+              return SUCCESS;   /* valid CFILE */
+           else
+              slp_list = slp_list.next;
+}
+        /* all the DNS mechanisms */
+        TGTDOM = gethostbyname(me);
+        TGTDOM = strip_leading_component(TGTDOM);
+        while (is_not_canonical(TGTDOM)) {
+           /* SHOULD try DNS SRV records */
+           dns_list = dns_query();
+           while (dns_list != null) { /* each TXT record */
+              if isvalid(read_CFILE(dns_list, curl_data))
+                 return SUCCESS;   /* valid CFILE */
+              else
+                 dns_list = dns_list.next;
+}
+           /* SHOULD try DNS TXT records */
+           dns_list = dns_query();
+           while (dns_list != null) { /* each TXT record */
+              if isvalid(read_CFILE(dns_list, curl_data))
+                 return SUCCESS;   /* valid CFILE */
+else
+dns_list = dns_list.next;
+}
+/* MUST try DNS A records */
+ 
+dns_list = dns_query();
+while (dns_list != null) { /* check each A record */ if isvalid(read_CFILE(dns_list, curl_data))
+return SUCCESS; /* valid CFILE */
+else
+dns_list = dns_list.next;
+}
+/* Still no match, remove leading component and iterate */
+TGTDOM = strip_leading_component(TGTDOM); }
+/* no A, TXT or SRV records for wpad.* */ return FAILED; /* could not locate valid
+CFILE */ }
+Question 4:
+The bases for distributed system is: CAP – Consistency，availability, and Partition Tolerance.
+In the distributed system, designer should give priority to Partition firstly. In this time, only one between C and A will be guraranteed.
+If consistency is guaranteed, each of our operations is required to be fully consistent, which will seriously affect usability.
+If availability is guaranteed, consistency is not guaranteed.
+Question 5:
+Testing
+Below Figure 1 shows the Junit testing case result of the basic push and modify notifications function. The test will read 10 notifications from “N_test.json” file. It will check whether the notification system receive the correct reply form server which confirm it received and alert and saved into its database. In the modifyNtest, the notification will still read the “N_test.json” and push the notifications into server, then it will read “M_test.json” which contains one notification previously pushed and the modified notification. The test will check whether the server will reply a correct response. This test is passed.
+   
+ Figure 1. Push and modify notification function tests
+Below figure 2. shows a Junit test case result of testing the basic fetching function of the User. It contains three subtests in this test case. Firstly, notification will push the notifications from file “U_test_pushNotifications.json” to the server and the user will send the fetch request for each severity. The test will check whether the server reply the correct number of replyInfo. This test is passed.
+Figure 2. Fetch function Tests
+Figure 3 Counter Tests
+Above figure 3. shows a Junit test case result of testing the counter monitor function. The test will set 99 notice, 499 caution and 999 urgent notifications have been pushed into the database in server. In the test, the program will push each severity 100 times and check whether the counter of each severity is over each limitation.
+  

@@ -496,43 +496,51 @@ void AVLTree<T>::destroy()
 void input() {
     ifstream infile("test.txt");
     string line;
-    getline(infile, line);
 
-    stringstream ss(line);
-    // 初始化AVL树
-    AVLTree<int>* tree=new AVLTree<int>();
+    while(getline(infile, line)) {
 
-    string data;
-    while(data != "IN" && data != "POST" && data != "PRE") {
+        stringstream ss(line);
+        // 初始化AVL树
+        AVLTree<int>* tree=new AVLTree<int>();
 
-        getline(ss, data, ' ');
+        string data;
+        while(data != "IN" && data != "POST" && data != "PRE") {
 
-        // 输出AVL树
-        if (data == "IN" || data == "POST" || data == "PRE") {
+            getline(ss, data, ' ');
 
-            // 输出
-            if (!tree->height()) {
-                cout << "EMPTY";
-            } else if (data == "IN") {
-                tree->inOrder();
-            } else if (data == "POST") {
-                tree->postOrder();
+            // 输出AVL树
+            if (data == "IN" || data == "POST" || data == "PRE") {
+
+                // 输出
+                if (!tree->height()) {
+                    cout << "EMPTY";
+                } else if (data == "IN") {
+                    tree->inOrder();
+                } else if (data == "POST") {
+                    tree->postOrder();
+                } else if (data == "PRE"){
+                    tree->preOrder();
+                } else {
+                    break;
+                }
+                tree->destroy();
+
+                break;
+
             } else {
-                tree->preOrder();
-            }
-            tree->destroy();
+                string operation = data.substr(0, 1);
+                int value = stoi(data.substr(1, data.length() - 1));
 
-        } else {
-            string operation = data.substr(0, 1);
-            int value = stoi(data.substr(1, data.length() - 1));
-
-            if (operation == "A") {
-                tree->insert(value);
-            } else if (operation == "D") {
-                tree->remove(value);
+                if (operation == "A") {
+                    tree->insert(value);
+                } else if (operation == "D") {
+                    tree->remove(value);
+                }
             }
-        }
-    }
+
+            data = "";
+        } // end while(data != "IN" && data != "POST" && data != "PRE")
+    } // end while(getline(infile, line)){}
 }
 
 int main()

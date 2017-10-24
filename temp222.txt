@@ -1,0 +1,43 @@
+Question1
+Collaborative session 4
+a1698583 Hao Wang a1692828 Wei Luo
+At-Most-Once semantic: when the client and server communicate without failure, RPC execute once and return a result. If the server fails, the client gives up RPC and return an error, the client will not attempt a retry.
+The implementation is as following:
+request_sent=false; while not request_sent {
+send rpc;
+request_sent=true; wait for the ack with timeout; if(ack received and not ack.is_successful)
+{
+request_sent=false;
+} }
+At-Least-Once semantic: client sends RPC until server execute at least once. The implementation as following:
+request_sent=false;
+while not request)received:
+while not request_received {
+send rpc;
+wait for ack with timeout;
+if(ack received and ack.is_successful) {
+} }
+request_received =true;
+In the idempotent operations, the At-Least-Once is more suitable. Because even the server has a failure, the client invokes RPC more times and the result will not change.
+Sometimes the RPC repeat executed server times with no affect return. If the client request that server read a file, even the server execute server times, or just execute once, that will not have a big effect.
+Question2
+GFS has a single master. It only maintains all file system metadata and co-ordinates access, so it reduces the storage usage on the master server. However, it may not be work in case of small size files. If the size is small as only one chunk, then this particular chunk server will handle all the requests received from the master. Furthermore, a potential bottleneck will occur if there are many such above cases happened.
+The chunk replica placement policy could solve the bottleneck problem. This policy makes sure some backups of a chunk could be accessed when the chunk server is unable to connect, especially for the read requests, the chunk could have more bandwidth for other requests. However, the instant of creating a backup chunk server, the master could re-assign the chunk to a less frequency access chunk server which is called Re-replication, Rebalancing.
+Question3
+The rarest-first download policy makes sure download the rarest piece in your peer first. One metric is to prevent the download stuck at the end of a process like 99%. The sequential and random-first download policy cannot avoid above situation happened. Therefore, it increases the performance of a BitTorrent network.
+Secondly, the rarest-first policy will let seed terminate it upload in a shorter period than other policies. Let he peers share a complete file with their download data, which they may not complete to download the entire file. For example, the seed has the file piece as 2 1 3 3 4 2 1. Peer 1 already download the file piece as 2 _ 3 3 4 _ 1 and Peer 2 already download _ _ 3 3 _ _ _. The second and sixth piece is the rarest so seed will upload these two pieces in high priority. After the seed uploads, the two piece the seed could stop involving in the process. However, the seed will always involve in the P2P process by using the sequential and random policy or at lease take longer to quit the process.
+Question6
+First of all, in order to maintain the updates of files accurately, we choose client-server architecture, and each file in the server is given a file ID and version No For files synchronization.
+In each client, the user can create, modify or delete files locally. When the client is off-line, the system just keeps the files locally. Whenever the client is on-line, the system checks the updates of all the files,
+that is, checks which files are most up-to-date between the client and server, and then only keeps the updated files in either client and server side. The rules are:
+1) File ID is the unique identifier to decide if a file in the server and the client is the same file, not the file name.
+2) For file creation in the client, the system just uploads the file to the server and gives it a new ID when the client is online.
+3) For file modification in the client, the system compares the same files in the client and server according to the last modified time and only keeps the last modified version of the file in the server and all clients.
+4) For file deletion in the client, when the user makes the action of deletion, the system doesn’t delete the file actually. Instead, it notes down the deletion time at the moment. When the client is online, the system compares the files last modification time on the server and the deletion time on the client. Only if the deletion time is later than the last modification time in the server, the file is deleted on the server and all other clients.
+5) Between all the distributed servers, once any update happens on one server, the update is pushed to any other servers.
+Above are the basic rules of the system. Following are some synchronization issues for this distributed system.
+1) The main entities of this system are file objects, each of which contains the following properties, File ID, file name, version No, last modified time, file content. where File ID is the unique identifier for a file, rather than the file name, File content is the real file in the disk.
+2) Regarding the consistency model, I prefer “Eventual consistency” model in this system. The reason is the main consistency issue happens in between client and server, server and server through networks. “Eventual consistency” model is strong enough to guarantee the consistencies of the files.
+3) Regarding the replicas number, there should be 1 copy in each client, and 1 copy in each distributed server. If the system allows file recovery for each client, the last version of the file copy of each client should be kept in each server.
+4) In this system, all files can be modified and updated locally offline. The files will be updated to the server when the client becomes online based on some updating regulations.
+5) For the Scenario in the question. In this system, one solution for the user is to keep the client offline in location B and continue to edit the files and make the client online after he finishes editing the file. The other solution to do on the server side is to allow a file in the server is marked as read-only. Thus the user can mark his files read-only before he gets on a plane in location A and removes the read-only after he arrives in location B.
